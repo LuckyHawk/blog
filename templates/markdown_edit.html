@@ -1,0 +1,274 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block stylesheel %}
+    <link rel="stylesheet" href="{% static 'markdownlib/editormd.css' %}">
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item active">记录想法</li>
+{% endblock %}
+
+{% block content %}
+    <style>
+    #submit_markdown {
+        margin: 5px auto;
+        width: 200px;
+    }
+    #id_class {
+        display: inline;
+        margin: 5px 5px 5px 0;
+        width: 200px;
+    }
+    .icon-normal{
+        display: inline-block;
+        width:30px;
+        height: 30px;
+        background-size: 100% 100%;
+    }
+    .icon-normal:hover{
+        cursor:pointer;
+    }
+    .create-class-icon{
+        position: relative;
+        top:8px;
+        background-image: url({% static 'images/plus-circle.svg' %});
+    }
+    .new_tag_area{
+        width:50%;
+    }
+    </style>
+    <div class="form-group">
+        {% csrf_token %}
+        <label for="id_title">标题:</label>
+        <input type="text" name="title" maxlength="256" class="form-control " required="" id="id_title">
+        <div>
+        <label for="id_class">分类:</label>
+        <select id="id_class" class="form-control">
+            {% for class_info in class_data %}
+                <option value="{{ class_info.id }}">{{ class_info.class }}</option>
+            {% endfor %}
+        </select>
+        <i class="icon-normal create-class-icon" data-toggle="modal" data-target="#createClassModal" ></i>
+        </div>
+        <div>
+            <button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#myModal">添加标签</button>
+            <span>标签:</span>
+            <span id="article_tags"></span>
+        </div>
+
+        <!-- 创建分类模态框 -->
+        <div class="modal fade" id="createClassModal">
+          <div class="modal-dialog">
+            <div class="modal-content">
+
+              <!-- 模态框头部 -->
+              <div class="modal-header">
+                <h4 class="modal-title">创建文章分类</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+              </div>
+
+              <!-- 模态框主体 -->
+              <div class="modal-body">
+                <div class="input-group">
+                  <input type="text" id="new_class_input" class="form-control" placeholder="New class...">
+                </div>
+              </div>
+
+              <!-- 模态框底部 -->
+              <div class="modal-footer">
+                <button type="button" class="btn btn-info" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-danger" data-dismiss="modal" id="confirm_class">确定</button>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- 模态框 -->
+        <div class="modal fade" id="myModal">
+          <div class="modal-dialog">
+            <div class="modal-content">
+
+              <!-- 模态框头部 -->
+              <div class="modal-header">
+                <h4 class="modal-title">选择标签</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+              </div>
+
+              <!-- 模态框主体 -->
+              <div class="modal-body">
+                <div id="tag_area">
+                {% for tag in tags %}
+                    <input type="checkbox" name="article_tag" id="tag_{{ tag.id }}" value="{{ tag.id }}"> <label for="tag_{{ tag.id }}">{{ tag.name }}</label>
+                {% endfor %}
+                </div>
+                <div class="input-group input-group-sm new_tag_area">
+                  <input type="text" id="new_tag_input" class="form-control" placeholder="New tag...">
+                  <span class="input-group-btn">
+                    <button class="btn btn-primary btn-sm" type="button" id="create_tag">新标签</button>
+                  </span>
+                </div>
+              </div>
+
+              <!-- 模态框底部 -->
+              <div class="modal-footer">
+                <button type="button" class="btn btn-info" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-danger" data-dismiss="modal" id="confirm_tag">确定</button>
+
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+    </div>
+
+    <div class="editormd" id="test-editormd">
+        <textarea class="editormd-markdown-textarea" name="test-editormd-markdown-doc">{% if origin_markdown_content %}{{ origin_markdown_content|safe }}{% endif %}</textarea>
+        <!-- 第二个隐藏文本域，用来构造生成的HTML代码，方便表单POST提交，这里的name可以任意取，后台接受时以这个name键为准 -->
+        <textarea class="editormd-html-textarea" name="text">{% if article_markdown_content %}{{ article_markdown_content|safe }}{% endif %}</textarea>
+    </div>
+
+    <button type="submit" class="btn btn-primary btn-block" id="submit_markdown">保存</button>
+
+    <script type="text/javascript">
+        var cur_title = '{{ article_title }}';
+        var cur_article_id = '{{ article_id }}';
+        var article_tags = [];
+        {% for tag in article_tags %}
+            article_tags.push({{ tag|safe }});
+        {% endfor %}
+
+        var article_tag_names = [];
+        for(var i=0;i<article_tags.length;i++){
+            article_tag_names.push(article_tags[i].name);
+            $('#tag_'+article_tags[i].id).attr('checked',true);
+        }
+        $("#article_tags").html(article_tag_names.join());
+
+        if(cur_title) {
+            $("#id_title").val(cur_title);
+        }
+        $(function() {
+            var markdownObject = editormd("test-editormd", {
+                width   : "100%",
+                height  : 640,
+                syncScrolling : "single",
+                //你的lib目录的路径，我这边用JSP做测试的
+                path    : "/static/markdownlib/lib/",
+                //这个配置在simple.html中并没有，但是为了能够提交表单，使用这个配置可以让构造出来的HTML代码直接在第二个隐藏的textarea域中，方便post提交表单。
+                saveHTMLToTextarea : true
+            });
+        });
+
+        var tags = [];
+        $('#confirm_tag').click(function(){
+            var multiple_input_arr = $("[name='article_tag']:checked");
+            var tags_p = $("#article_tags");
+            var tag_name = [];
+            var tag_id = [];
+            for(var i=0; i < multiple_input_arr.length;i ++){
+                var id_str = "tag_" + multiple_input_arr[i].value;
+                tag_name.push($("label[for='"+id_str+"']").text());
+                tag_id.push(multiple_input_arr[i].value);
+            }
+            tags_p.html(tag_name.join());
+            tags = tag_id;
+
+        });
+
+        //创建标签触发函数
+        $('#create_tag').click(function(){
+            var new_tag = $('#new_tag_input').val();
+            if (!new_tag){
+                return;
+            }
+            var tag_info = {
+                tag_name:new_tag
+            };
+
+            var template_str = '<input type="checkbox" name="article_tag" id="tag_@id@" value="@id@"> <label for="tag_@id@">@name@</label>';
+            var total_str = '';
+            $.post({
+               url:'/article/tag/create/',
+               data:JSON.stringify(tag_info),
+               headers:{"X-CSRFTOKEN":$.cookie('csrftoken')},
+               success:function(data){
+                   for(var i=0; i<data.tag_data.length;i++){
+                        total_str += template_str.replace(/@id@/g,data.tag_data[i].id).replace(/@name@/g,data.tag_data[i].name);
+                   }
+                   $('#tag_area').html(total_str);
+                   $('#new_tag_input').val('');
+               },
+               error: function(){
+                   alert('创建失败');
+               },
+               contentType:"application/json"
+           });
+
+        });
+
+        //创建分类触发函数
+        $('#confirm_class').click(function(){
+            var new_class = $('#new_class_input').val();
+            var class_info = {
+                class_name:new_class
+            };
+            var template_str = '<option value="@id@">@class@</option>';
+            var total_str = '';
+           $.post({
+               url:'/article/class/create/',
+               data:JSON.stringify(class_info),
+               headers:{"X-CSRFTOKEN":$.cookie('csrftoken')},
+               success:function(data){
+                   for(var i=0;i<data.class_data.length;i++){
+                       total_str += template_str.replace(/@id@/g,data.class_data[i].id).replace(/@class@/g,data.class_data[i].class);
+                   }
+                   $('#id_class').html(total_str);
+                   $('#new_class_input').val('');
+               },
+               error: function(){
+                   alert('创建失败');
+               },
+               contentType:"application/json"
+           });
+        });
+
+
+        $('#submit_markdown').click(function(){
+            var markdown_content = $("[name='test-editormd-markdown-doc']").text();
+            var markdown_html = $("[name='text']").text();
+            var markdown_title = $("#id_title").val();
+            var markdown_class = $("#id_class").val();
+            var json_data = {
+                markdown_html:markdown_html,
+                markdown_md:markdown_content,
+                title:markdown_title,
+                class_id:markdown_class,
+                tags: tags
+            };
+            if(cur_article_id){
+                json_data['article_id'] = parseInt(cur_article_id);
+            }
+
+           $.post({
+               url:'/write_markdown/',
+               data:JSON.stringify(json_data),
+               headers:{"X-CSRFTOKEN":$.cookie('csrftoken')},
+               success:function(){
+                   alert('上传成功');
+                   tags=[];
+                   window.location.href = "{% url 'home' %}";
+               },
+               error: function(){
+                   alert('上传失败');
+               },
+               contentType:"application/json"
+           });
+        });
+    </script>
+{% endblock %}
+
+{% block javascript %}
+    <script type="text/javascript" src="{% static 'markdownlib/editormd.min.js' %}"></script>
+{% endblock javascript %}

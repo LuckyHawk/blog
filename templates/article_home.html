@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item active">文章列表</li>
+{% endblock %}
+
+{% block content %}
+    <style type="text/css">
+        .article_list{
+            margin: 10px 0;
+        }
+    </style>
+    {% for article in articles %}
+        <div class="container article_list">
+            <h4><a href="/article/{{ article.id }}">{{ article.title }}</a></h4>
+            <span><b>时间:</b></span>{{ article.date | date:'Y-n-d H:i' }}<br>
+            <span><b>分类:</b></span>{{ article.class }}<br>
+            <span><b>标签:</b></span>
+            {% for tag in article.tags %}
+                <span>{{ tag }}</span>
+            {% endfor %}
+        </div>
+    {% endfor %}
+{% endblock %}

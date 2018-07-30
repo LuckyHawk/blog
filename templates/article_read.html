@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+
+{% load static %}
+{% block stylesheel %}
+    <link rel="stylesheet" href="{% static 'markdownlib/editormd.css' %}">
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item active"><a href="{% url "home" %}">文章列表</a></li>
+    <li class="breadcrumb-item active">{{ article_title }}</li>
+{% endblock %}
+
+{% block content %}
+
+    <style type="text/css">
+    .editormd-preview{
+        position: relative;
+    }
+    </style>
+    <div class="">
+        {% if request.user.username == 'admin' %}
+
+            <div class="text-right article_operate_bar">
+                <a role="button" href="{% url 'edit_markdown' article_id %}" class="btn btn-warning" id="edit_article">编辑</a>
+                <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#myModal">
+                  删除
+                </button>
+
+                <!-- 模态框 -->
+                <div class="modal fade" id="myModal">
+                  <div class="modal-dialog">
+                    <div class="modal-content">
+
+                      <!-- 模态框头部 -->
+                      <div class="modal-header">
+                        <h4 class="modal-title">删除文章</h4>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                      </div>
+
+                      <!-- 模态框主体 -->
+                      <div class="modal-body">
+                        《{{ article_title }}》将会被删除，此操作不可逆！
+                      </div>
+
+                      <!-- 模态框底部 -->
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-info" data-dismiss="modal">取消</button>
+                          <button type="button" class="btn btn-danger" data-dismiss="modal" id="delete_article">确定</button>
+                      </div>
+
+                    </div>
+                  </div>
+                </div>
+            </div>
+        {% endif %}
+{#        <div class="editormd-preview" style="display: block; top: 0px;">#}
+{#            <div id="view_markdown_html" class="markdown-body editormd-preview-container" previewcontainer="true" style="padding: 20px;">#}
+{##}
+{#            </div>#}
+{#        </div>#}
+        <div id="test-editormd-view">
+            <textarea style="display:none;" name="test-editormd-markdown-doc">{{ origin_markdown_content }}</textarea>
+        </div>
+
+
+    </div>
+    <script type="text/javascript">
+
+
+    $(function(){
+        $('#delete_article').click(function(){
+            $.ajax({
+               url:'/article/delete/{{ article_id }}',
+                type:'delete',
+               headers:{"X-CSRFTOKEN":$.cookie('csrftoken')},
+               success:function(){
+                   alert('删除成功');
+                   window.location.href = '/hello/';
+               },
+               error: function(){
+                   alert('删除失败');
+               }
+           });
+        });
+
+        testEditormdView2 = editormd.markdownToHTML("test-editormd-view", {
+            htmlDecode: "style,script,iframe",  // you can filter tags decode
+            emoji: true,
+            taskList: true,
+            tex: true,  // 默认不解析
+            flowChart: true,  // 默认不解析
+            sequenceDiagram: true  // 默认不解析
+        });
+    });
+
+    </script>
+{% endblock %}
+
+{% block javascript %}
+    <script src="{% static 'markdownlib/lib/marked.min.js'%}"></script>
+    <script src="{% static 'markdownlib/lib/prettify.min.js'%}"></script>
+    <script src="{% static 'markdownlib/lib/raphael.min.js'%}"></script>
+    <script src="{% static 'markdownlib/lib/underscore.min.js'%}"></script>
+    <script src="{% static 'markdownlib/lib/sequence-diagram.min.js'%}"></script>
+    <script src="{% static 'markdownlib/lib/flowchart.min.js'%}"></script>
+    <script src="{% static 'markdownlib/lib/jquery.flowchart.min.js'%}"></script>
+    <script src="{% static 'markdownlib/editormd.min.js'%}"></script>
+{% endblock javascript %}
+
