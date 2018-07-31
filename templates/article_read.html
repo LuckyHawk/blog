@@ -75,7 +75,7 @@
                headers:{"X-CSRFTOKEN":$.cookie('csrftoken')},
                success:function(){
                    alert('删除成功');
-                   window.location.href = '/hello/';
+                   window.location.href = "{% url 'home' %}";
                },
                error: function(){
                    alert('删除失败');
