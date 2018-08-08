@@ -19,6 +19,8 @@
             {% for tag in article.tags %}
                 <span>{{ tag }}</span>
             {% endfor %}
+            <br>
+            <span><b>作者:</b></span>{{ article.username }}
         </div>
     {% endfor %}
 {% endblock %}

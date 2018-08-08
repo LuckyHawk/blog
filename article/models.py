@@ -17,6 +17,7 @@ class Article(models.Model):
     content = models.TextField()
     origin_md = models.TextField()
     class_id = models.ForeignKey(ArticleClass, null=True, on_delete=models.SET_NULL,related_name='article_class')
+    username = models.CharField(max_length=128, null=False, default="public")
 
     def __repr__(self):
         return self.title

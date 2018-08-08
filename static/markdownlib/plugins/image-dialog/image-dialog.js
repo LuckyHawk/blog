@@ -50,7 +50,7 @@
                                         ( (settings.imageUpload) ? "<iframe name=\"" + iframeName + "\" id=\"" + iframeName + "\" guid=\"" + guid + "\"></iframe>" : "" ) +
                                         "<label>" + imageLang.url + "</label>" +
                                         "<input type=\"text\" data-url />" + (function(){
-                                            return (settings.imageUpload) ? "<div class=\"" + classPrefix + "file-input\">" +
+                                            return (settings.imageUpload) ? "<div class=\"" + classPrefix + "file-input\">" + "<input id=\"image_upload_csrf\" name=\"csrfmiddlewaretoken\" type=\"hidden\" value=\"\">" +
                                                                                 "<input type=\"file\" name=\"" + classPrefix + "image-file\" accept=\"image/*\" />" +
                                                                                 "<input type=\"submit\" value=\"" + imageLang.uploadButton + "\" />" +
                                                                             "</div>" : "";
@@ -184,7 +184,8 @@
 			dialog.find("[type=\"text\"]").val("");
 			dialog.find("[type=\"file\"]").val("");
 			dialog.find("[data-link]").val("http://");
-
+            //hawk 新增该行
+            dialog.find("[id=\"image_upload_csrf\"]").val($.cookie('csrftoken'));
 			this.dialogShowMask(dialog);
 			this.dialogLockScreen();
 			dialog.show();

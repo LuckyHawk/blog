@@ -33,6 +33,7 @@ urlpatterns = [
     path('article/delete/<int:article_id>', views.deleteArticle, name='delete_article'),
     path('article/tag/create/', views.createArticleTag, name='create_article_tag'),
     path('article/class/create/', views.createArticleClass, name='create_article_class'),
+    path('image/upload', views.uploadImage, name='upload_image'),
 
     re_path(r'^reset/$',
     auth_views.PasswordResetView.as_view(

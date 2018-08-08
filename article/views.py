@@ -54,15 +54,20 @@ def get_article_tags(article_id):
         resultArr.append(temp_dict)
     return resultArr
 
-#@login_required
+@login_required
 def home(request):
     article_arr = []
-    articles = Article.objects.all()
+    #articles = Article.objects.all()
+    if request.user.username == 'admin':
+        articles = Article.objects.all()
+    else:
+        articles = Article.objects.filter(username=request.user)
     for article in articles:
         article_info = {
             'id':article.id,
             'title': article.title,
             'date': article.date,
+            'username':article.username
         }
         article_class = ArticleClass.objects.get(id=article.class_id.id)
         tags_id = ArticleTagRelationship.objects.filter(article_id=article.id)
@@ -70,6 +75,7 @@ def home(request):
         tags_name = list(map(lambda t: t.tag_name, tags))
         article_info['class'] = article_class.class_name
         article_info['tags'] = tags_name
+
         article_arr.append(article_info)
 
         #print(request.user) # 可以访问已登录用户
@@ -87,20 +93,25 @@ def createArticle(request):
         articleForm = ArticleForm()
         return render(request, 'article_form.html', {'form':articleForm})
 
+@login_required
 def writeMakrdown(request):
     if request.method == 'POST':
+
         markdown_info = json.loads(request.body)
         article_id = markdown_info.get('article_id')
         if article_id is not None:
             article = Article.objects.get(id=article_id)
             if article is None:
                 raise Http404
+            username = article.username
         else:
+            username = request.user.username
             article = Article()
         article.title = markdown_info['title']
         article.content = markdown_info['markdown_html']
         article.origin_md = markdown_info['markdown_md']
         article.class_id = ArticleClass.objects.get(id=markdown_info['class_id'])
+        article.username = username
         article.save()
 
         # 为文章的每个标签在 标签-文章 关联表中增加一条记录
@@ -137,6 +148,7 @@ def viewMarkdown(request, article_id):
     }
     return render(request, 'article_read.html', article_info)
 
+@login_required
 def editArticle(request, article_id):
     article = Article.objects.get(id=article_id)
     if article is None:
@@ -156,10 +168,12 @@ def editArticle(request, article_id):
     }
     return render(request, 'markdown_edit.html', data)
 
+@login_required
 def deleteArticle(request, article_id):
     Article.objects.filter(id=article_id).delete()
     return HttpResponse('ok')
 
+@login_required
 def createArticleTag(request):
     tag_info = json.loads(request.body)
     tag_name = tag_info.get('tag_name')
@@ -173,6 +187,7 @@ def createArticleTag(request):
     }
     return HttpResponse(json.dumps(result), content_type="application/json")
 
+@login_required
 def createArticleClass(request):
     class_info = json.loads(request.body)
     class_name = class_info.get('class_name')
@@ -182,5 +197,13 @@ def createArticleClass(request):
 
     result = {
         'class_data':get_all_class()
+    }
+    return HttpResponse(json.dumps(result), content_type="application/json")
+
+def uploadImage(request):
+    result = {
+        "success" : 1, #0表示上传失败;1表示上传成功
+        "message" : "success",
+        "url"     : "http://localhost:8000/static/uploadImage/cloud_sun.png"
     }
     return HttpResponse(json.dumps(result), content_type="application/json")
