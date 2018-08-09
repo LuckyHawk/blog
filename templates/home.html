@@ -2,20 +2,17 @@
 
 {% block content_nav %}
     <div>
-        <h1 style="text-align: center">个人空间</h1>
+        <h1 style="text-align: center">博客首页</h1>
     </div>
-{#        {% if request.user.username == 'admin' %}#}
-    <a href="{% url 'home' %}">
-            首页
-    </a>
-    <a href="{% url 'write_markdown' %}">
-            写文章
-    </a>
-{#        {% endif %}#}
+    {% if request.user.is_authenticated %}
+        <a href="{% url 'private_home' %}">
+                个人空间
+        </a>
+    {% endif %}
 {% endblock content_nav %}
 
 {% block breadcrumb %}
-    <li class="breadcrumb-item active">文章列表</li>
+    <li class="breadcrumb-item active">首页</li>
 {% endblock %}
 
 {% block content %}

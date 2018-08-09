@@ -5,8 +5,24 @@
     <link rel="stylesheet" href="{% static 'markdownlib/editormd.css' %}">
 {% endblock %}
 
+{% block content_nav %}
+    <div>
+        <h1 style="text-align: center">{{ article_title }}</h1>
+    </div>
+{#    <a href="{% url 'home' %}">#}
+{#            首页#}
+{#    </a>#}
+{#    <a href="{% url 'write_markdown' %}">#}
+{#            写文章#}
+{#    </a>#}
+{% endblock content_nav %}
+
 {% block breadcrumb %}
-    <li class="breadcrumb-item active"><a href="{% url "home" %}">文章列表</a></li>
+    {% if request.user.username == username %}
+        <li class="breadcrumb-item active"><a href="{% url "private_home" %}">个人空间</a></li>
+    {% else %}
+        <li class="breadcrumb-item active"><a href="{% url "home" %}">首页</a></li>
+    {% endif %}
     <li class="breadcrumb-item active">{{ article_title }}</li>
 {% endblock %}
 
@@ -18,7 +34,7 @@
     }
     </style>
     <div class="">
-        {% if request.user.username == 'admin' %}
+        {% if request.user.username == username or request.user.username == 'admin'%}
 
             <div class="text-right article_operate_bar">
                 <a role="button" href="{% url 'edit_markdown' article_id %}" class="btn btn-warning" id="edit_article">编辑</a>

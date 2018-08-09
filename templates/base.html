@@ -45,11 +45,9 @@
     </nav>
 
     <div class="container">
-{#        {% if request.user.username == 'admin' %}#}
-            <a href="{% url 'write_markdown' %}">
-                    写文章
-            </a>
-{#        {% endif %}#}
+        {% block content_nav %}
+
+        {% endblock content_nav %}
 
         <ol class="breadcrumb my-4">
             {% block breadcrumb %}

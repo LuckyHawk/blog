@@ -26,6 +26,7 @@ urlpatterns = [
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('login/',auth_views.LoginView.as_view(template_name='login.html'), name='login'),
     re_path(r'^$', views.home, name='home'),
+    path('private/', views.privateHome, name='private_home'),
     path('write_article/',views.createArticle, name='write_article'),
     path('write_markdown/', views.writeMakrdown, name='write_markdown'),
     path('article/<int:article_id>', views.viewMarkdown, name='view_markdown'),

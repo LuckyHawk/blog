@@ -8,6 +8,8 @@ from .models import ArticleTagRelationship
 from .models import Tag
 from .models import ArticleClass
 import json
+import sys
+import os
 from .forms import ArticleForm
 
 def get_all_tags():
@@ -54,8 +56,35 @@ def get_article_tags(article_id):
         resultArr.append(temp_dict)
     return resultArr
 
-@login_required
+
 def home(request):
+    article_arr = []
+    articles = Article.objects.all()
+    for article in articles:
+        article_info = {
+            'id': article.id,
+            'title': article.title,
+            'date': article.date,
+            'username': article.username
+        }
+        article_class = ArticleClass.objects.get(id=article.class_id.id)
+        tags_id = ArticleTagRelationship.objects.filter(article_id=article.id)
+        tags = Tag.objects.filter(tag_id__in=tags_id)
+        tags_name = list(map(lambda t: t.tag_name, tags))
+        article_info['class'] = article_class.class_name
+        article_info['tags'] = tags_name
+
+        article_arr.append(article_info)
+
+        # print(request.user) # 可以访问已登录用户
+    template_data = {'articles': article_arr}
+    if request.user == 'admin':
+        template_data['admin'] = True
+    # return HttpResponse(json.dumps(article_arr), content_type="application/json")
+    return render(request, 'home.html', template_data)
+
+@login_required
+def privateHome(request):
     article_arr = []
     #articles = Article.objects.all()
     if request.user.username == 'admin':
@@ -96,7 +125,6 @@ def createArticle(request):
 @login_required
 def writeMakrdown(request):
     if request.method == 'POST':
-
         markdown_info = json.loads(request.body)
         article_id = markdown_info.get('article_id')
         if article_id is not None:
@@ -144,7 +172,8 @@ def viewMarkdown(request, article_id):
         'article_markdown_content':content,
         'origin_markdown_content':article.origin_md,
         'article_title':article.title,
-        'article_id':article.id
+        'article_id':article.id,
+        'username':article.username
     }
     return render(request, 'article_read.html', article_info)
 
@@ -201,9 +230,15 @@ def createArticleClass(request):
     return HttpResponse(json.dumps(result), content_type="application/json")
 
 def uploadImage(request):
+    image = request.FILES.get('editormd-image-file')
+    imagepath = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),'static','uploadImage')
+    with open(os.path.join(imagepath,image.name),'wb') as f:
+        for chunk in image.chunks():
+            f.write(chunk)
+
     result = {
         "success" : 1, #0表示上传失败;1表示上传成功
         "message" : "success",
-        "url"     : "http://localhost:8000/static/uploadImage/cloud_sun.png"
+        "url"     : "http://localhost:8000/static/uploadImage/" + image.name
     }
     return HttpResponse(json.dumps(result), content_type="application/json")
