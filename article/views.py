@@ -231,8 +231,8 @@ def createArticleClass(request):
 
 def uploadImage(request):
     image = request.FILES.get('editormd-image-file')
-    imagepath = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),'static','uploadImage')
-    with open(os.path.join(imagepath,image.name),'wb') as f:
+    imagepath = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'static', 'uploadImage')
+    with open(os.path.join(imagepath, image.name), 'wb') as f:
         for chunk in image.chunks():
             f.write(chunk)
 

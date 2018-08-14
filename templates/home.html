@@ -20,10 +20,24 @@
         .article_list{
             margin: 10px 0;
         }
+        @keyframes title_line {
+            from{border-bottom: none;}
+            to{border-bottom: 1px solid black;}
+        }
+        .title{
+            color:#555;
+            text-decoration: None;
+            font-family:"Courier New", "Times New Roman";
+        }
+        .title:hover{
+            text-decoration: None;
+            color:#555;
+        }
+
     </style>
     {% for article in articles %}
         <div class="container article_list">
-            <h4><a href="/article/{{ article.id }}">{{ article.title }}</a></h4>
+            <h2><a class="title" href="/article/{{ article.id }}">{{ article.title }}</a></h2>
             <span><b>时间:</b></span>{{ article.date | date:'Y-n-d H:i' }}<br>
             <span><b>分类:</b></span>{{ article.class }}<br>
             <span><b>标签:</b></span>
