@@ -17,14 +17,14 @@
 {#    </a>#}
 {% endblock content_nav %}
 
-{% block breadcrumb %}
-    {% if request.user.username == username %}
-        <li class="breadcrumb-item active"><a href="{% url "private_home" %}">个人空间</a></li>
-    {% else %}
-        <li class="breadcrumb-item active"><a href="{% url "home" %}">首页</a></li>
-    {% endif %}
-    <li class="breadcrumb-item active">{{ article_title }}</li>
-{% endblock %}
+{#{% block breadcrumb %}#}
+{#    {% if request.user.username == username %}#}
+{#        <li class="breadcrumb-item active"><a href="{% url "private_home" %}">个人空间</a></li>#}
+{#    {% else %}#}
+{#        <li class="breadcrumb-item active"><a href="{% url "home" %}">首页</a></li>#}
+{#    {% endif %}#}
+{#    <li class="breadcrumb-item active">{{ article_title }}</li>#}
+{#{% endblock %}#}
 
 {% block content %}
 

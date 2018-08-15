@@ -1,8 +1,22 @@
 {% extends 'base.html' %}
-
+{% load static %}
 {% block content_nav %}
-    <div>
-        <h1 style="text-align: center">博客首页</h1>
+    <style type="text/css">
+        .home-nav {
+            color: #e8f2ff;
+        }
+        .nav-picture{
+            background: url("{% static 'images/yun.JPG' %}") center center no-repeat;
+            background-size: 100% 100%;
+            width: 1111px;
+            height: 300px;
+            margin: 0 auto;
+        }
+    </style>
+    <div class="home-nav">
+        <div class="nav-picture">
+            <h1 style="text-align: center">SUNSHINE</h1>
+        </div>
     </div>
 {#    {% if request.user.is_authenticated %}#}
 {#        <a href="{% url 'private_home' %}">#}
@@ -11,21 +25,21 @@
 {#    {% endif %}#}
 {% endblock content_nav %}
 
-{% block breadcrumb %}
-    <li class="breadcrumb-item active">首页</li>
-{% endblock %}
+{#{% block breadcrumb %}#}
+{#    <li class="breadcrumb-item active">首页</li>#}
+{#{% endblock %}#}
 
 {% block content %}
     <style type="text/css">
-
-        .left-content{
-            backgroun:gray;
+        .main-content{
+            margin-top: 20px;
         }
-
+        .left-content{
+            text-align: center;
+        }
         .article_list{
             margin: 10px 0;
         }
-
         .article_list span{
             color:#999;
             font-family: 'Lato', "PingFang SC", "Microsoft YaHei", sans-serif;
@@ -72,16 +86,28 @@
             -o-transform: scaleX(1);
             transform: scaleX(1);
         }
-
+        .hawk-logo{
+            background: url("{% static 'images/yang.png' %}") center center no-repeat;
+            background-size: 100% 100%;
+            width: 100px;
+            height: 100px;
+            margin:20px auto;
+        }
+        .cloud-logo{
+            background: url("{% static 'images/cloud.png' %}") center center no-repeat;
+            background-size: 100% 100%;
+            width: 100px;
+            height: 100px;
+            margin:20px auto;
+        }
 
     </style>
-    <div class="container">
-        <div class="row">
+        <div class="row main-content">
             <div class="left-content col-sm-3">
-
+                <div class="hawk-logo"></div>
                 <p>鹰击长空，</p><p>鱼翔浅底，</p><p>万类霜天竞自由。</p>
             </div>
-            <div class="right-content col-sm-8">
+            <div class="right-content col-sm-6">
                 {% for article in articles %}
                 <div class="article_list">
                     <h2><a class="title" href="/article/{{ article.id }}">{{ article.title }}</a></h2>
@@ -96,6 +122,11 @@
                 </div>
             {% endfor %}
             </div>
+            <div class="left-content col-sm-3">
+                <div class="cloud-logo"></div>
+                <p>在没风的地方找太阳</p>
+                <p>在你冷的地方做暖阳</p>
+            </div>
         </div>
-    </div>
+
 {% endblock %}
