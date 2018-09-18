@@ -193,7 +193,8 @@ def editArticle(request, article_id):
         'article_id': article.id,
         'class_data': get_all_class(),
         'article_tags': get_article_tags(article.id),
-        'tags': get_all_tags()
+        'tags': get_all_tags(),
+        'article_class': article.class_id.id
     }
     return render(request, 'markdown_edit.html', data)
 
